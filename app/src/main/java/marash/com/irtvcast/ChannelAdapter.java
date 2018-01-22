@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,13 +19,13 @@ import java.util.Map;
 public class ChannelAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
-    private Map<String,Integer> channels = new LinkedHashMap<>();
+    private Map<String, Integer> channels = new LinkedHashMap<>();
 
     ChannelAdapter(Context applicationContext) {
         inflater = (LayoutInflater.from(applicationContext));
-        channels.put("channel-1",R.drawable.channel1);
-        channels.put("channel-2",R.drawable.channel2);
-        channels.put("channel-3",R.drawable.channel3);
+        channels.put("channel-1", R.drawable.channel1);
+        channels.put("channel-2", R.drawable.channel2);
+        channels.put("channel-3", R.drawable.channel3);
 
     }
 
