@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // chromecasr session manager should be higher than super.onCreate
+        // chromecast session manager should be higher than super.onCreate
         mSessionManager = CastContext.getSharedInstance(this).getSessionManager();
 
         super.onCreate(savedInstanceState);
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         videoView = findViewById(R.id.videoView);
         btnPlayPause = findViewById(R.id.btn_play_pause);
-        btnPlayPause.setClickable(false);
+        btnPlayPause.setEnabled(false);
         mDialog = new ProgressDialog(MainActivity.this);
 
         channelGridView = findViewById(R.id.channelGridView);
@@ -95,14 +95,13 @@ public class MainActivity extends AppCompatActivity {
                             mDialog.dismiss();
                             mediaPlayer.setLooping(true);
                             videoView.start();
-                            btnPlayPause.setClickable(true);
+                            btnPlayPause.setEnabled(true);
                             btnPlayPause.setImageResource(R.drawable.pause);
                         }
                     });
 
 
                 } else {
-                    //TODO show message that tyou have buy pro to see these channels!
                     mDialog.setMessage("Please buy version pro to have access to all channels.");
                     mDialog.setCanceledOnTouchOutside(true);
                     mDialog.show();
@@ -113,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mDialog = new ProgressDialog(MainActivity.this);
 
-                if (btnPlayPause.isClickable()) {
+                if (btnPlayPause.isEnabled()) {
                     if (!videoView.isPlaying()) {
-                        mDialog = new ProgressDialog(MainActivity.this);
                         mDialog.setMessage("Please wait...");
                         mDialog.setCanceledOnTouchOutside(true);
                         mDialog.show();
@@ -129,23 +128,20 @@ public class MainActivity extends AppCompatActivity {
                                 btnPlayPause.setImageResource(R.drawable.play);
                             }
                         });
-                    } else {
+                        videoView.requestFocus();
+                        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mediaPlayer) {
+                                mDialog.dismiss();
+                                mediaPlayer.setLooping(true);
+                                videoView.start();
+                                btnPlayPause.setImageResource(R.drawable.pause);
+                            }
+                        });
+                    }else {
                         videoView.pause();
                         btnPlayPause.setImageResource(R.drawable.play);
                     }
-                } else {
-
-
-                    videoView.requestFocus();
-                    videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mediaPlayer) {
-                            mDialog.dismiss();
-                            mediaPlayer.setLooping(true);
-                            videoView.start();
-                            btnPlayPause.setImageResource(R.drawable.pause);
-                        }
-                    });
                 }
             }
         });
