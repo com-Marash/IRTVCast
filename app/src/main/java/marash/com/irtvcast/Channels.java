@@ -12,12 +12,13 @@ import java.util.Map;
 abstract class Channels {
     public static final List<ChannelDetail> channelsInfo = new ArrayList<>();
     static {
-        channelsInfo.add(new ChannelDetail("channel-1", "https://live.cdn.asset.aparat.com/astv1/edge/tv1_high/index.m3u8"));
-        channelsInfo.add(new ChannelDetail("channel-2", "https://live.cdn.asset.aparat.com/astv1/edge/tv2_high/index.m3u8"));
-        channelsInfo.add(new ChannelDetail("channel-3", "https://live.cdn.asset.aparat.com/astv1/edge/tv3_high/index.m3u8"));
-        channelsInfo.add(new ChannelDetail("channel-4", "https://live.cdn.asset.aparat.com/astv1/edge/tv4_high/index.m3u8"));
-        channelsInfo.add(new ChannelDetail("channel-5", "https://live.cdn.asset.aparat.com/astv1/edge/tv5_high/index.m3u8"));
-        channelsInfo.add(new ChannelDetail("channel-6", "https://live.cdn.asset.aparat.com/astv1/edge/irinn.m3u8"));
+        channelsInfo.add(new ChannelDetail("channel-1", "https://live.cdn.asset.aparat.com/astv1/edge/tv1_high/index.m3u8", R.drawable.channel1));
+        channelsInfo.add(new ChannelDetail("channel-2", "https://live.cdn.asset.aparat.com/astv1/edge/tv2_high/index.m3u8", R.drawable.channel2));
+        channelsInfo.add(new ChannelDetail("channel-3", "https://live.cdn.asset.aparat.com/astv1/edge/tv3_high/index.m3u8", R.drawable.channel3));
+        channelsInfo.add(new ChannelDetail("channel-4", "https://live.cdn.asset.aparat.com/astv1/edge/tv4_high/index.m3u8", R.drawable.channel3));
+        channelsInfo.add(new ChannelDetail("channel-5", "https://live.cdn.asset.aparat.com/astv1/edge/tv5_high/index.m3u8", R.drawable.channel3));
+        channelsInfo.add(new ChannelDetail("channel-6", "https://live.cdn.asset.aparat.com/astv1/edge/irinn.m3u8", R.drawable.channel3));
+        channelsInfo.add(new ChannelDetail("Manoto", "https://s3.eu-west-2.amazonaws.com/manos-live-001/profile2/out_0.m3u8", R.drawable.channel1));
 
     }
 }
