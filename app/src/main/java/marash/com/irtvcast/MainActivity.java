@@ -29,18 +29,16 @@ public class MainActivity extends AppCompatActivity {
     VideoView videoView;
     ImageView btnPlayPause;
     GridView channelGridView;
-    String[] channelsName = new String[]{"channel-1", "channel-2", "channel-3", "channel-4", "channel-5"};
-    String[] channelsURL = new String[]{"https://live.cdn.asset.aparat.com/astv1/edge/tv1_high/index.m3u8",
-            "https://live.cdn.asset.aparat.com/astv1/edge/tv2_high/index.m3u8",
-            "https://live.cdn.asset.aparat.com/astv1/edge/tv3_high/index.m3u8"};
-    String videoURL;
+
+    Integer currentChannelIndex = null;
 
     // chromecast
     MediaRouteButton mMediaRouteButton;
     private CastSession mCastSession;
     private SessionManager mSessionManager;
-    private final SessionManagerListener mSessionManagerListener =
-            new SessionManagerListenerImpl();
+    private final SessionManagerListener mSessionManagerListener = new SessionManagerListenerImpl();
+
+    boolean playState = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,27 +66,17 @@ public class MainActivity extends AppCompatActivity {
         channelGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                if (channelsName[position].equals("channel-1") || channelsName[position].equals("channel-2")) {
+                currentChannelIndex = position;
+                playState = true;
+                if (mSessionManager.getCurrentCastSession() != null) {
+                    startCast();
 
+                } else {
                     mDialog.setMessage("Please wait...");
                     mDialog.setCanceledOnTouchOutside(true);
                     mDialog.show();
 
-                    try {
-                        videoURL = channelsURL[position];
-                        Uri uri = Uri.parse(videoURL);
-                        videoView.setVideoURI(uri);
-                        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                            @Override
-                            public void onCompletion(MediaPlayer mediaPlayer) {
-                                btnPlayPause.setImageResource(R.drawable.play);
-                            }
-                        });
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    videoView.requestFocus();
+                    videoView.setVideoURI(Uri.parse(Channels.channelsInfo.get(currentChannelIndex).url));
                     videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                         @Override
                         public void onPrepared(MediaPlayer mediaPlayer) {
@@ -99,12 +87,6 @@ public class MainActivity extends AppCompatActivity {
                             btnPlayPause.setImageResource(R.drawable.pause);
                         }
                     });
-
-
-                } else {
-                    mDialog.setMessage("Please buy version pro to have access to all channels.");
-                    mDialog.setCanceledOnTouchOutside(true);
-                    mDialog.show();
                 }
             }
         });
@@ -112,35 +94,39 @@ public class MainActivity extends AppCompatActivity {
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDialog = new ProgressDialog(MainActivity.this);
 
                 if (btnPlayPause.isEnabled()) {
-                    if (!videoView.isPlaying()) {
-                        mDialog.setMessage("Please wait...");
-                        mDialog.setCanceledOnTouchOutside(true);
-                        mDialog.show();
+                    CastSession currentCastSession = mSessionManager.getCurrentCastSession();
+                    if (currentCastSession != null) {
+                        if (playState) {
+                            currentCastSession.getRemoteMediaClient().pause();
+                            playState = false;
+                            btnPlayPause.setImageResource(R.drawable.play);
+                        } else {
+                            startCast();
+                        }
+                    } else {
+                        if (!videoView.isPlaying()) {
+                            mDialog.setMessage("Please wait...");
+                            mDialog.setCanceledOnTouchOutside(true);
+                            mDialog.show();
 
-                        Uri uri = Uri.parse(videoURL);
-                        videoView.setVideoURI(uri);
-                        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                            @Override
-                            public void onCompletion(MediaPlayer mediaPlayer) {
-                                btnPlayPause.setImageResource(R.drawable.play);
-                            }
-                        });
-                        videoView.requestFocus();
-                        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                            @Override
-                            public void onPrepared(MediaPlayer mediaPlayer) {
-                                mDialog.dismiss();
-                                mediaPlayer.setLooping(true);
-                                videoView.start();
-                                btnPlayPause.setImageResource(R.drawable.pause);
-                            }
-                        });
-                    }else {
-                        videoView.pause();
-                        btnPlayPause.setImageResource(R.drawable.play);
+                            videoView.setVideoURI(Uri.parse(Channels.channelsInfo.get(currentChannelIndex).url));
+                            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mediaPlayer) {
+                                    mDialog.dismiss();
+                                    mediaPlayer.setLooping(true);
+                                    videoView.start();
+                                    btnPlayPause.setImageResource(R.drawable.pause);
+                                    playState = true;
+                                }
+                            });
+                        } else {
+                            videoView.pause();
+                            btnPlayPause.setImageResource(R.drawable.play);
+                            playState = false;
+                        }
                     }
                 }
             }
@@ -153,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         mSessionManager.addSessionManagerListener(mSessionManagerListener);
         super.onResume();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -178,12 +165,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSessionStarted(Session session, String sessionId) {
             invalidateOptionsMenu();
-            runTestCast(session, sessionId);
+            startCast();
         }
 
         @Override
         public void onSessionStartFailed(Session session, int i) {
-
+            stopCast();
         }
 
         @Override
@@ -194,22 +181,22 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSessionResumed(Session session, boolean wasSuspended) {
             invalidateOptionsMenu();
+            startCast();
         }
 
         @Override
         public void onSessionResumeFailed(Session session, int i) {
-
+            stopCast();
         }
 
         @Override
         public void onSessionSuspended(Session session, int i) {
-            //TODO: notify user about session suspension
-            finish();
+            stopCast();
         }
 
         @Override
         public void onSessionEnded(Session session, int error) {
-            finish();
+            stopCast();
         }
 
         @Override
@@ -219,18 +206,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void runTestCast(Session session, String sessionId) {
-        MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-        movieMetadata.putString("mediaType", "video");
-        movieMetadata.putString(MediaMetadata.KEY_TITLE, "Shabake 1");
+    private void startCast() {
+        if (currentChannelIndex != null) {
+            if (videoView.isPlaying()){
+                videoView.pause();
+            }
+            MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+            movieMetadata.putString("mediaType", "video");
+            movieMetadata.putString(MediaMetadata.KEY_TITLE, Channels.channelsInfo.get(currentChannelIndex).name);
 
-        MediaInfo mediaInfo = new MediaInfo.Builder(channelsURL[1])
-                .setMetadata(movieMetadata)
-                .setStreamType(MediaInfo.STREAM_TYPE_LIVE)
-                .setContentType("application/x-mpegURL")
-                .build();
+            MediaInfo mediaInfo = new MediaInfo.Builder(Channels.channelsInfo.get(currentChannelIndex).url)
+                    .setMetadata(movieMetadata)
+                    .setStreamType(MediaInfo.STREAM_TYPE_LIVE)
+                    .setContentType("application/x-mpegURL")
+                    .build();
 
-        RemoteMediaClient remoteMediaClient = mSessionManager.getCurrentCastSession().getRemoteMediaClient();
-        remoteMediaClient.load(mediaInfo, true);
+            RemoteMediaClient remoteMediaClient = mSessionManager.getCurrentCastSession().getRemoteMediaClient();
+            remoteMediaClient.load(mediaInfo, true);
+
+            btnPlayPause.setEnabled(true);
+            btnPlayPause.setImageResource(R.drawable.pause);
+            playState = true;
+        }
+    }
+
+    private void stopCast() {
+        playState = false;
+        btnPlayPause.setImageResource(R.drawable.play);
+        if (videoView.isPlaying()){
+            videoView.pause();
+        }
     }
 }
