@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                             mediaPlayer.setLooping(true);
                             videoView.start();
                             btnPlayPause.setEnabled(true);
-                            btnPlayPause.setImageResource(R.drawable.pause);
+                            btnPlayPause.setImageResource(R.drawable.pause2);
                         }
                     });
                 }
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                         if (playState) {
                             currentCastSession.getRemoteMediaClient().pause();
                             playState = false;
-                            btnPlayPause.setImageResource(R.drawable.play);
+                            btnPlayPause.setImageResource(R.drawable.play2);
                         } else {
                             startCast();
                         }
@@ -118,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
                                     mDialog.dismiss();
                                     mediaPlayer.setLooping(true);
                                     videoView.start();
-                                    btnPlayPause.setImageResource(R.drawable.pause);
+                                    btnPlayPause.setImageResource(R.drawable.pause2);
                                     playState = true;
                                 }
                             });
                         } else {
                             videoView.pause();
-                            btnPlayPause.setImageResource(R.drawable.play);
+                            btnPlayPause.setImageResource(R.drawable.play2);
                             playState = false;
                         }
                     }
@@ -225,14 +225,14 @@ public class MainActivity extends AppCompatActivity {
             remoteMediaClient.load(mediaInfo, true);
 
             btnPlayPause.setEnabled(true);
-            btnPlayPause.setImageResource(R.drawable.pause);
+            btnPlayPause.setImageResource(R.drawable.pause2);
             playState = true;
         }
     }
 
     private void stopCast() {
         playState = false;
-        btnPlayPause.setImageResource(R.drawable.play);
+        btnPlayPause.setImageResource(R.drawable.play2);
         if (videoView.isPlaying()){
             videoView.pause();
         }
