@@ -40,7 +40,6 @@
         android:numColumns="3"
         android:horizontalSpacing="10dp"
         android:verticalSpacing="10dp"
-        android:listSelector="#f9f504"
         android:id="@+id/channelGridView"
         android:layout_below="@+id/btn_play_pause"/>
 

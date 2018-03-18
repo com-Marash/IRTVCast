@@ -1,6 +1,10 @@
 package marash.com.irtvcast;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -22,6 +27,8 @@ import com.google.android.gms.cast.framework.Session;
 import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+
+import static marash.com.irtvcast.R.drawable.channelnamayesh;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,10 +71,12 @@ public class MainActivity extends AppCompatActivity {
         channelGridView.setAdapter(channelAdapter);
 
         channelGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("ResourceType")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 currentChannelIndex = position;
                 playState = true;
+
                 if (mSessionManager.getCurrentCastSession() != null) {
                     startCast();
 
@@ -88,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+
             }
         });
 
@@ -213,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             }
             MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
             movieMetadata.putString("mediaType", "video");
-            movieMetadata.putString(MediaMetadata.KEY_TITLE, Channels.channelsInfo.get(currentChannelIndex).name);
+            movieMetadata.putString(MediaMetadata.KEY_TITLE, "FARSI CAST | " + Channels.channelsInfo.get(currentChannelIndex).name);
 
             MediaInfo mediaInfo = new MediaInfo.Builder(Channels.channelsInfo.get(currentChannelIndex).url)
                     .setMetadata(movieMetadata)
